@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.netiq.com/OAuth2Config" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="OAuth2Config" type="oaut:OAuth2ConfigType" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+  <xs:complexType name="EndPointType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="endPointId" use="optional"/>
+        <xs:attribute type="xs:string" name="endPointName" use="optional"/>
+        <xs:attribute type="xs:string" name="endPointURL" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="EndPointListType">
+    <xs:sequence>
+      <xs:element type="oaut:EndPointType" name="EndPoint" maxOccurs="unbounded" minOccurs="0" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ClaimsType" mixed="true">
+    <xs:sequence>
+      <xs:element type="xs:string" name="Claim" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AttributeSetType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="dn" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="ScopeType">
+    <xs:sequence>
+      <xs:element type="oaut:ClaimsType" name="Claims" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+      <xs:element type="oaut:AttributeSetType" name="AttributeSet" minOccurs="0" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="description" use="optional"/>
+    <xs:attribute type="xs:string" name="userPermissionRequired" use="optional"/>
+    <xs:attribute type="xs:string" name="isGroupOfUserAttributes" use="optional"/>
+    <xs:attribute type="xs:string" name="allowModifyInConsent" use="optional"/>
+    <xs:attribute type="xs:string" name="includeAllClaimsInJWT" use="optional"/>
+    <xs:attribute type="xs:string" name="includedClaimsInJWT" use="optional"/>
+    <xs:attribute type="xs:string" name="includeAllClaimsInIDToken" use="optional"/>
+    <xs:attribute type="xs:string" name="includedClaimsInIDToken" use="optional"/>
+    <xs:attribute type="xs:string" name="adminApprovalRequired" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="JWTAccessTokenEncryptionAlgoType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="encryptionAlg" use="optional"/>
+        <xs:attribute type="xs:string" name="encryptionEnc" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="CryptoKeysType">
+    <xs:sequence>
+      <xs:element type="oaut:JWTAccessTokenEncryptionAlgoType" name="JWTAccessTokenEncryptionAlgo" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="jwksUri" use="optional"/>
+    <xs:attribute type="xs:string" name="jwks" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="ResourceServerType">
+    <xs:sequence>
+      <xs:element type="oaut:ScopeType" name="Scope" maxOccurs="unbounded" minOccurs="0" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+      <xs:element type="oaut:CryptoKeysType" name="CryptoKeys" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="disableJWTAccessTokenEncryption" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="ScopesType">
+    <xs:sequence>
+      <xs:element type="oaut:ResourceServerType" name="ResourceServer" maxOccurs="unbounded" minOccurs="0" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ApplicationConfigReferenceType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="refId" use="optional"/>
+        <xs:attribute type="xs:string" name="clientName" use="optional"/>
+        <xs:attribute type="xs:string" name="developer" use="optional"/>
+        <xs:attribute type="xs:string" name="applicationType" use="optional"/>
+        <xs:attribute type="xs:string" name="cn" use="optional"/>
+        <xs:attribute type="xs:string" name="enabled" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="OAuth2ConfigType">
+    <xs:sequence>
+      <xs:element type="oaut:EndPointListType" name="EndPointList" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+      <xs:element type="oaut:ScopesType" name="Scopes" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+      <xs:element type="xs:string" name="LdapAttributeName"/>
+      <xs:element type="oaut:ApplicationConfigReferenceType" name="ApplicationConfigReference" maxOccurs="unbounded" minOccurs="0" xmlns:oaut="http://www.netiq.com/OAuth2Config"/>
+      <xs:element type="xs:string" name="lastModifiedTime"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="id"/>
+    <xs:attribute type="xs:string" name="version"/>
+  </xs:complexType>
+</xs:schema>

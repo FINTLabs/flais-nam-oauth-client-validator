@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
+<xs:schema xmlns:ns5="http://www.netiq.com/assertionissuer" xmlns:ns3="http://www.netiq.com/oauth2types" xmlns:ns2="http://www.netiq.com/tenantcfg" xmlns:ns4="http://www.netiq.com/OAuth2Config" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="nidsOAuthClientXML_domainName.xsd" namespace="http://www.netiq.com/oauth2types" />
+  <xs:element name="ApplicationConfig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="RedirectUrlList">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Url" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ResponseTypesList">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="responseType" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="GrantTypesList">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="grantType" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="corsdomainNames">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" ref="ns3:domainName" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ApplicationType" type="xs:string" />
+        <xs:element name="CryptoKeys">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="IdTokenResponseAlgorithms" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ScopeList">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="names" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string" use="required" />
+      <xs:attribute name="clientSecret" type="xs:string" use="required" />
+      <xs:attribute name="clientName" type="xs:string" use="required" />
+      <xs:attribute name="requireAuthTime" type="xs:boolean" use="required" />
+      <xs:attribute name="supportsAuthorizationCode" type="xs:boolean" use="required" />
+      <xs:attribute name="supportsImplicit" type="xs:boolean" use="required" />
+      <xs:attribute name="supportsROCredentials" type="xs:boolean" use="required" />
+      <xs:attribute name="supportsClientCredentials" type="xs:boolean" use="required" />
+      <xs:attribute name="supportsSAML2Assertion" type="xs:boolean" use="required" />
+      <xs:attribute name="supportsRefreshTokens" type="xs:boolean" use="required" />
+      <xs:attribute name="configurationEndpointUrl" type="xs:string" use="required" />
+      <xs:attribute name="clientIdIssuedAt" type="xs:unsignedLong" use="required" />
+      <xs:attribute name="clientSecretExpiresAt" type="xs:unsignedLong" use="required" />
+      <xs:attribute name="accessTokenTTL" type="xs:unsignedByte" use="required" />
+      <xs:attribute name="refreshTokenTTL" type="xs:unsignedByte" use="required" />
+      <xs:attribute name="authzCodeTTL" type="xs:unsignedByte" use="required" />
+      <xs:attribute name="developerDn" type="xs:string" use="required" />
+      <xs:attribute name="alwaysIssueNewRefreshToken" type="xs:boolean" use="required" />
+      <xs:attribute name="enableNativeSSO" type="xs:boolean" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

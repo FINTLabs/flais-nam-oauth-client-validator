@@ -1,47 +1,109 @@
 package io.flais;
 
-import com.ctc.wstx.stax.WstxInputFactory;
-import com.ctc.wstx.stax.WstxOutputFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlFactory;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import io.flais.nam.oauthconfig.NIDSOAuthTenants;
+import com.netiq.applicationconfig.ApplicationConfig;
+import com.netiq.auth2config.ApplicationConfigReferenceType;
+import com.netiq.auth2config.OAuth2ConfigType;
+import io.flais.nam.oauthclient.NIDSOAuthClient;
+import io.flais.nam.oauthclient.NIDSOAuthClientRepository;
 import io.flais.nam.oauthconfig.NIDSOAuthTenantsRepository;
-import io.flais.nam.oauthconfig.OAuth2Config;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.xml.stream.XMLInputFactory;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
 public class ValidatorService {
 
     private final NIDSOAuthTenantsRepository nidsoAuthTenantsRepository;
-    private final XmlMapper objectMapper;
+    private final NIDSOAuthClientRepository nidsoAuthClientRepository;
 
-    public ValidatorService(NIDSOAuthTenantsRepository nidsoAuthTenantsRepository) {
+    private Map<String, ApplicationConfigReferenceType> applicationConfigReferences = new HashMap<>();
+    private Map<String, NIDSOAuthClient> applicationConfigs = new HashMap<>();
+
+    public ValidatorService(NIDSOAuthTenantsRepository nidsoAuthTenantsRepository, NIDSOAuthClientRepository nidsoAuthClientRepository) {
         this.nidsoAuthTenantsRepository = nidsoAuthTenantsRepository;
-        XMLInputFactory input = new WstxInputFactory();
-        input.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
-        objectMapper = new XmlMapper(new XmlFactory(input, new WstxOutputFactory()));
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.nidsoAuthClientRepository = nidsoAuthClientRepository;
+    }
+
+    private void refresh() {
+        refreshApplicationConfigReferences();
+        log.info("Found {} OAuth clients in OAuth Config XML", applicationConfigReferences.size());
+
+        refreshOAuthClients();
+        log.info("Found {} OAuth clients", applicationConfigs.size());
+
+        findClientsNotInNidsOauth2CFGXML();
+        findNidsOauth2CFGXMLClientRefsNotInClients();
+
+    }
+
+    public Summary getSummary() {
+        refresh();
+        return Summary
+                .builder()
+                .clientsNotInXML(findClientsNotInNidsOauth2CFGXML())
+                .clientsNotInContainer(findNidsOauth2CFGXMLClientRefsNotInClients())
+                .build();
+    }
+
+    private void refreshApplicationConfigReferences() {
+        nidsoAuthTenantsRepository
+                .findAll()
+                .stream()
+                .findFirst()
+                .map(nidsoAuthTenants ->
+                        XMLUnmarshallerFactory.unmarshallObject(nidsoAuthTenants.getNidsOAuth2CFGXML(), OAuth2ConfigType.class).getApplicationConfigReference()
+                ).stream()
+                .findFirst()
+                .orElse(Collections.emptyList())
+                .forEach(applicationConfigReferenceType -> applicationConfigReferences.put(applicationConfigReferenceType.getRefId(), applicationConfigReferenceType));
+    }
+
+    private void refreshOAuthClients() {
+        nidsoAuthClientRepository
+                .findAll()
+                .forEach(nidsoAuthClient -> applicationConfigs.put(nidsoAuthClient.getNidsDisplayName(), nidsoAuthClient));
+    }
+
+    private List<NIDSOAuthClient> findClientsNotInNidsOauth2CFGXML() {
+        ArrayList<NIDSOAuthClient> nidsOAuthClients = new ArrayList<>();
+        applicationConfigs
+                .values()
+                .forEach(nidsoAuthClient -> {
+                    ApplicationConfig applicationConfig = nidsoAuthClient.getApplicationConfig();
+                    if (!applicationConfigReferences.containsKey(applicationConfig.getId())) {
+                        nidsOAuthClients.add(nidsoAuthClient);
+                    }
+                });
+        return nidsOAuthClients;
+    }
+
+    private List<ApplicationConfigReferenceType> findNidsOauth2CFGXMLClientRefsNotInClients() {
+        List<ApplicationConfigReferenceType> applicationConfigReferenceTypes = new ArrayList<>();
+        applicationConfigReferences
+                .keySet()
+                .forEach(s -> {
+                    if (!applicationConfigs.containsKey(s)) {
+                        applicationConfigReferenceTypes.add(applicationConfigReferences.get(s));
+                    }
+
+                });
+
+        return applicationConfigReferenceTypes;
     }
 
     @PostConstruct
     public void init() {
-        List<NIDSOAuthTenants> tenantsList = nidsoAuthTenantsRepository.findAll();
-        log.info("Found {} NIDS OAuth Tenants", tenantsList.size());
+        refresh();
+    }
 
-        try {
-            OAuth2Config oAuth2Config = objectMapper.readValue(tenantsList.get(0).getNidsOAuth2CFGXML(), OAuth2Config.class);
-            log.info("");
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+
+    public boolean isConfigEqualClient(ApplicationConfigReferenceType applicationConfigReferenceType, NIDSOAuthClient nidsoAuthClient) {
+        ApplicationConfig applicationConfig = XMLUnmarshallerFactory.unmarshallObject(nidsoAuthClient.getNidsOAuthClientXML(), ApplicationConfig.class);
+        return applicationConfigReferenceType.getRefId().equals(applicationConfig.getId())
+                && applicationConfigReferenceType.getClientName().equals(applicationConfig.getClientName())
+                && applicationConfigReferenceType.getCn().equals(nidsoAuthClient.getCn());
     }
 }

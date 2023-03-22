@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.0.4'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'org.graalvm.buildtools.native' version '0.9.20'
+    id "com.intershop.gradle.jaxb" version "5.2.1"
 }
 
 group = 'io.flais'
@@ -24,7 +25,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-ldap'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.2'
+    implementation 'javax.xml.bind:jaxb-api:2.2.4'
+    implementation 'com.sun.xml.bind:jaxb-core:4.0.0'
+    implementation 'com.sun.xml.bind:jaxb-impl:4.0.0'
+
 
     compileOnly 'org.projectlombok:lombok'
 
@@ -38,3 +42,46 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+
+jaxb {
+    // generate java code from schema
+    javaGen {
+        //generates a 'project' schema file from existing java code
+        applicationconfig {
+            schema = file("src/main/resources/xsd/nidsOAuthClientXML.xsd")
+            args = ["-verbose"]
+            packageName = 'com.netiq.applicationconfig'
+
+        }
+
+        auth2config {
+            schema = file( "src/main/resources/xsd/nidsOAuth2CFGXML.xsd")
+            args = ["-verbose"]
+            packageName = 'com.netiq.auth2config'
+        }
+
+
+    }
+}
+
+build.dependsOn jaxbJavaGenApplicationconfig
+build.dependsOn jaxbJavaGenAuth2config
+
+//jaxb {
+//    xsdDir = "${project.projectDir}/src/main/resources/xsd"
+//    xjc {
+//        generateEpisodeFiles = false
+//        taskClassname        = "org.jvnet.jaxb2_commons.xjc.XJC2Task"
+//        generatePackage      = "io.flais.nam.oauth2cfg"
+//        args                 = ["-Xinheritance", "-Xannotate"]
+//    }
+//}
+//xsd2java {
+//    encoding = 'utf-8'
+//    xsdsToGenerate = [
+//            ["src/main/resources/xsd/nidsOAuth2CFGXML.xsd", 'io.flais.nam.oauth2cfg', [header: false] /* optional map */]
+//            //nidsOAuthClientXML
+//    ]
+//    generatedXsdDir = file("generatedsources/xsd2java")
+//}
