@@ -46,6 +46,8 @@ spec:
           env:
             - name: logging.level.no.fintlabs
               value: DEBUG
+            - name: spring.webflux.base-path
+              value: /nam/oauth/clients/validator
           envFrom:
             - secretRef:
                 name: flais-nam-oauth-client-validator
