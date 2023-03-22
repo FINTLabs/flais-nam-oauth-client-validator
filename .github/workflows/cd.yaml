@@ -65,6 +65,6 @@ jobs:
           manifests: ${{ steps.bake-infra.outputs.manifestsBundle }}
           images: |
             ${{ steps.meta.outputs.tags }}
-          namespace: operators
+          namespace: default
           action: deploy
 
