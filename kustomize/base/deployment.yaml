@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flais-nam-oauth-client-validator
+  labels:
+    app.kubernetes.io/name: flais-nam-oauth-client-validator
+    app.kubernetes.io/instance: flais-nam-oauth-client-validator
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: GA
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/part-of: fintlabs-application-infrastructure-services
+    fintlabs.no/team: flais
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: flais-nam-oauth-client-validator
+      app.kubernetes.io/instance: flais-nam-oauth-client-validator
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app.kubernetes.io/name: flais-nam-oauth-client-validator
+        app.kubernetes.io/instance: flais-nam-oauth-client-validator
+    spec:
+      serviceAccountName: flais-nam-oauth-client-validator
+      securityContext:
+        {}
+      containers:
+        - name: flais-nam-oauth-client-validator
+          securityContext:
+            {}
+          image: "ghcr.io/fintlabs/flais-nam-oauth-client-validator:sha-0000000"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: logging.level.no.fintlabs
+              value: DEBUG
+          envFrom:
+            - secretRef:
+                name: flais-nam-oauth-client-validator
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          # livenessProbe:
+          #   httpGet:
+          #     path: /actuator/health
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
+            requests:
+              memory: 256Mi
+              cpu: 250m
