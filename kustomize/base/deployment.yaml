@@ -26,9 +26,6 @@ spec:
         app.kubernetes.io/name: flais-nam-oauth-client-validator
         app.kubernetes.io/instance: flais-nam-oauth-client-validator
     spec:
-      serviceAccountName: flais-nam-oauth-client-validator
-      securityContext:
-        {}
       hostAliases:
         - ip: "10.0.0.11"
           hostnames:

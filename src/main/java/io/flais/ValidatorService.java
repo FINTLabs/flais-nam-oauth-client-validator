@@ -6,16 +6,17 @@ import com.netiq.auth2config.OAuth2ConfigType;
 import io.flais.nam.oauthclient.NIDSOAuthClient;
 import io.flais.nam.oauthclient.NIDSOAuthClientRepository;
 import io.flais.nam.oauthconfig.NIDSOAuthTenantsRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ValidatorService {
 
+    public static final String EXCLUDE_INTERNAL_OAUTH_CLIENT_CN = "OACa53en6";
     private final NIDSOAuthTenantsRepository nidsoAuthTenantsRepository;
     private final NIDSOAuthClientRepository nidsoAuthClientRepository;
 
@@ -77,7 +78,10 @@ public class ValidatorService {
                         nidsOAuthClients.add(nidsoAuthClient);
                     }
                 });
-        return nidsOAuthClients;
+        return nidsOAuthClients
+                .stream()
+                .filter(nidsoAuthClient -> !nidsoAuthClient.getCn().equals(EXCLUDE_INTERNAL_OAUTH_CLIENT_CN))
+                .collect(Collectors.toList());
     }
 
     private List<ApplicationConfigReferenceType> findNidsOauth2CFGXMLClientRefsNotInClients() {
@@ -94,16 +98,4 @@ public class ValidatorService {
         return applicationConfigReferenceTypes;
     }
 
-    @PostConstruct
-    public void init() {
-        refresh();
-    }
-
-
-    public boolean isConfigEqualClient(ApplicationConfigReferenceType applicationConfigReferenceType, NIDSOAuthClient nidsoAuthClient) {
-        ApplicationConfig applicationConfig = XMLUnmarshallerFactory.unmarshallObject(nidsoAuthClient.getNidsOAuthClientXML(), ApplicationConfig.class);
-        return applicationConfigReferenceType.getRefId().equals(applicationConfig.getId())
-                && applicationConfigReferenceType.getClientName().equals(applicationConfig.getClientName())
-                && applicationConfigReferenceType.getCn().equals(nidsoAuthClient.getCn());
-    }
 }
