@@ -6,7 +6,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`d.flais.io`) && PathPrefix(`/nam/oauth/clients/validator`)
+    - match: Host(`d.flais.io`) && PathPrefix(`/infra/nam/oauth/clients/validator`)
       kind: Rule
       services:
         - name: flais-nam-oauth-client-validator
