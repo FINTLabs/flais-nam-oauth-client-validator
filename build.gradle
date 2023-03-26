@@ -25,6 +25,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-ldap'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     implementation 'javax.xml.bind:jaxb-api:2.2.4'
     implementation 'com.sun.xml.bind:jaxb-core:4.0.0'
     implementation 'com.sun.xml.bind:jaxb-impl:4.0.0'
