@@ -1,4 +1,5 @@
 # FLAIS NetIQ Access Manager OAuth Client Validator
+[![Build and deploy](https://github.com/FINTLabs/flais-nam-oauth-client-validator/actions/workflows/cd.yaml/badge.svg)](https://github.com/FINTLabs/flais-nam-oauth-client-validator/actions/workflows/cd.yaml)
 
 ## Configuration
 
