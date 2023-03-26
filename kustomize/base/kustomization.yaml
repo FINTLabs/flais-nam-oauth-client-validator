@@ -4,3 +4,4 @@ resources:
   - deployment.yaml
   - onepassword.yml
   - service.yaml
+  - ingress-route.yaml
