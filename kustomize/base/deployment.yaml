@@ -2,29 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flais-nam-oauth-client-validator
-  labels:
-    app.kubernetes.io/name: flais-nam-oauth-client-validator
-    app.kubernetes.io/instance: flais-nam-oauth-client-validator
-    app.kubernetes.io/version: "latest"
-    app.kubernetes.io/managed-by: GA
-    app.kubernetes.io/component: operator
-    app.kubernetes.io/part-of: fintlabs-application-infrastructure-services
-    fintlabs.no/team: flais
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: flais-nam-oauth-client-validator
-      app.kubernetes.io/instance: flais-nam-oauth-client-validator
   template:
     metadata:
       annotations:
         prometheus.io/path: /infra/nam/oauth/clients/validator/actuator/prometheus
         prometheus.io/port: "8080"
         prometheus.io/scrape: "true"
-      labels:
-        app.kubernetes.io/name: flais-nam-oauth-client-validator
-        app.kubernetes.io/instance: flais-nam-oauth-client-validator
     spec:
       hostAliases:
         - ip: "10.0.0.11"
@@ -67,7 +52,7 @@ spec:
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              path: /infra/nam/oauth/clients/validator/health/readiness
+              path: /infra/nam/oauth/clients/validator/actuator/health/readiness
               port: http
             initialDelaySeconds: 30
             periodSeconds: 5

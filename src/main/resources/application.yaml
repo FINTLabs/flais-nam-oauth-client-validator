@@ -7,3 +7,6 @@ management:
     health:
       probes:
         enabled: true
+spring:
+  webflux:
+    base-path: /infra/nam/oauth/clients/validator
