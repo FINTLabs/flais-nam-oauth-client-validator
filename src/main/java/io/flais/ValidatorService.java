@@ -28,15 +28,15 @@ public class ValidatorService {
         this.nidsoAuthClientRepository = nidsoAuthClientRepository;
     }
 
-    private void refresh() {
+    public void refresh() {
         refreshApplicationConfigReferences();
         log.info("Found {} OAuth clients in OAuth Config XML", applicationConfigReferences.size());
 
         refreshOAuthClients();
         log.info("Found {} OAuth clients", applicationConfigs.size());
 
-        findClientsNotInNidsOauth2CFGXML();
-        findNidsOauth2CFGXMLClientRefsNotInClients();
+        //findClientsNotInNidsOauth2CFGXML();
+        //findNidsOauth2CFGXMLClientRefsNotInClients();
 
     }
 
@@ -68,7 +68,7 @@ public class ValidatorService {
                 .forEach(nidsoAuthClient -> applicationConfigs.put(nidsoAuthClient.getNidsDisplayName(), nidsoAuthClient));
     }
 
-    private List<NIDSOAuthClient> findClientsNotInNidsOauth2CFGXML() {
+    public List<NIDSOAuthClient> findClientsNotInNidsOauth2CFGXML() {
         ArrayList<NIDSOAuthClient> nidsOAuthClients = new ArrayList<>();
         applicationConfigs
                 .values()
@@ -84,7 +84,7 @@ public class ValidatorService {
                 .collect(Collectors.toList());
     }
 
-    private List<ApplicationConfigReferenceType> findNidsOauth2CFGXMLClientRefsNotInClients() {
+    public List<ApplicationConfigReferenceType> findNidsOauth2CFGXMLClientRefsNotInClients() {
         List<ApplicationConfigReferenceType> applicationConfigReferenceTypes = new ArrayList<>();
         applicationConfigReferences
                 .keySet()

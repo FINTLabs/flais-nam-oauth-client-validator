@@ -30,6 +30,10 @@ public final class NIDSOAuthClient {
         return XMLUnmarshallerFactory.unmarshallObject(nidsOAuthClientXML, ApplicationConfig.class);
     }
 
+    public void setApplicationConfig(ApplicationConfig applicationConfig) {
+        nidsOAuthClientXML = XMLUnmarshallerFactory.marshallObject(applicationConfig, ApplicationConfig.class);
+    }
+
     public String getDn() {
         return dn.toString();
     }
