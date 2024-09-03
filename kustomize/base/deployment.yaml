@@ -3,43 +3,32 @@ kind: Deployment
 metadata:
   name: flais-nam-oauth-client-validator
 spec:
+  selector:
+    matchLabels:
+      app: flais-nam-oauth-client-validator
   replicas: 1
   template:
     metadata:
+      labels:
+        app: flais-nam-oauth-client-validator
       annotations:
         prometheus.io/path: /infra/nam/oauth/clients/validator/actuator/prometheus
         prometheus.io/port: "8080"
         prometheus.io/scrape: "true"
     spec:
-      hostAliases:
-        - ip: "10.0.0.11"
-          hostnames:
-            - "namadmcon01"
-      volumes:
-        - name: secrets
-          secret:
-            secretName: "namadmcon01"
-            items:
-              - key: cacerts.jks
-                path: cacerts.jks
       containers:
         - name: flais-nam-oauth-client-validator
-          securityContext:
-            {}
           image: "ghcr.io/fintlabs/flais-nam-oauth-client-validator:sha-0000000"
-          imagePullPolicy: IfNotPresent
           env:
             - name: logging.level.no.fintlabs
               value: DEBUG
             - name: spring.webflux.base-path
               value: /infra/nam/oauth/clients/validator
+            - name: spring.ldap.url
+              value: ldap://localhost:389
           envFrom:
             - secretRef:
                 name: flais-nam-oauth-client-validator
-          volumeMounts:
-            - name: secrets
-              mountPath: /mnt/secrets
-              readOnly: true
           ports:
             - name: http
               containerPort: 8080
@@ -58,8 +47,24 @@ spec:
             periodSeconds: 5
           resources:
             limits:
-              memory: 1024Mi
-              cpu: 500m
+              memory: 350Mi
+              cpu: 200m
             requests:
-              memory: 1024Mi
-              cpu: 250m
+              memory: 300Mi
+              cpu: 50m
+
+        - name: stunnel
+          image: ghcr.io/fintlabs/vigo-auth-organisation-selector-ldap-proxy:sha-05c9d22
+          env:
+            - name: SERVER_ADDRESS
+              value: "10.0.0.11"
+          ports:
+            - containerPort: 389
+
+          resources:
+            limits:
+              memory: "100Mi"
+              cpu: "50m"
+            requests:
+              memory: "30Mi"
+              cpu: "10m"
