@@ -20,6 +20,8 @@ spec:
         - name: flais-nam-oauth-client-validator
           image: "ghcr.io/fintlabs/flais-nam-oauth-client-validator:sha-0000000"
           env:
+            - name: JAVA_OPTS
+              value: "-Xmx270m -Xms180m"
             - name: logging.level.no.fintlabs
               value: DEBUG
             - name: spring.webflux.base-path
