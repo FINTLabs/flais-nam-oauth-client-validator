@@ -1,0 +1,36 @@
+name: Build and deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Select environment
+        required: true
+        default: test
+        type: choice
+        options:
+          - test
+          - prod
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-publish:
+    name: Build and publish NAM OAuth Client Validator
+    uses: ./.github/workflows/.build-publish-docker.yaml
+    secrets: inherit
+    with:
+      image_name: ${{ github.repository }}
+      context: .
+      environment: ${{ inputs.environment }}
+
+  deploy:
+    name: Deploy NAM OAuth Client Validator to infra
+    needs: build-publish
+    uses: ./.github/workflows/.cluster-deploy.yaml
+    secrets: inherit
+    with:
+      environment: ${{ inputs.environment }}
+      image-tags: ${{ needs.build-publish.outputs.image_tags }}
